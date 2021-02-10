@@ -354,8 +354,8 @@ public class CommandLineOptions {
         configurationError = true;
         return;
       }
+      Scene scene = new Scene();
       try {
-        Scene scene = new Scene();
         try (FileInputStream in = new FileInputStream(sceneFile)) {
           scene.loadDescription(in);
         }
@@ -378,6 +378,8 @@ public class CommandLineOptions {
         }
       } catch (IOException e) {
         Log.error("Failed to merge render dump.", e);
+      } finally {
+        scene.freeOctrees();
       }
     });
 

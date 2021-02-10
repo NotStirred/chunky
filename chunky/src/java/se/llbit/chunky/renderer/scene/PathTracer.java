@@ -96,8 +96,7 @@ public class PathTracer implements RayTracer {
       Material prevMat = ray.getPrevMaterial();
 
       if (!scene.stillWater && ray.n.y != 0 &&
-          ((currentMat.isWater() && prevMat == Air.INSTANCE)
-              || (currentMat == Air.INSTANCE && prevMat.isWater()))) {
+          ((currentMat.isWater() && prevMat == Air.INSTANCE) || (currentMat == Air.INSTANCE && prevMat.isWater()))) {
         WaterModel.doWaterDisplacement(ray);
         if (currentMat == Air.INSTANCE) {
           ray.n.y = -ray.n.y;

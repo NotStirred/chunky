@@ -424,7 +424,13 @@ public class Scene implements JsonSerializable, Refreshable {
       // The octree reference is overwritten to save time.
       // When the other scene is changed it must create a new octree.
       palette = other.palette;
+      if(worldOctree != null) {
+        worldOctree.free();
+      }
       worldOctree = other.worldOctree;
+      if(waterOctree != null) {
+        waterOctree.free();
+      }
       waterOctree = other.waterOctree;
       entities = other.entities;
       actors = new LinkedList<>(other.actors); // Create a copy so that entity changes can be reset.
@@ -809,7 +815,13 @@ public class Scene implements JsonSerializable, Refreshable {
 
       // Create new octree to fit all chunks.
       palette = new BlockPalette();
+      if(worldOctree != null) {
+        worldOctree.free();
+      }
       worldOctree = new Octree(octreeImplementation, requiredDepth);
+      if(waterOctree != null) {
+        waterOctree.free();
+      }
       waterOctree = new Octree(octreeImplementation, requiredDepth);
       if(emitterSamplingStrategy != EmitterSamplingStrategy.NONE)
         emitterGrid = new Grid(gridSize);
@@ -2002,8 +2014,14 @@ public class Scene implements JsonSerializable, Refreshable {
           DataInputStream inRetry = new DataInputStream(new GZIPInputStream(context.getSceneFileInputStream(fileName)));
           data = OctreeFileFormat.load(inRetry, "NODE");
         }
+        if(worldOctree != null) {
+          worldOctree.free();
+        }
         worldOctree = data.worldTree;
         worldOctree.setTimestamp(fileTimestamp);
+        if(waterOctree != null) {
+          waterOctree.free();
+        }
         waterOctree = data.waterTree;
         grassTexture = data.grassColors;
         foliageTexture = data.foliageColors;
@@ -2543,6 +2561,7 @@ public class Scene implements JsonSerializable, Refreshable {
     scene.importFromJson(json);
     copyState(scene);
     copyTransients(scene);
+    scene.freeOctrees();
     finalizeBuffer = finalizeBufferPrev; // Restore the finalize setting.
 
     setResetReason(ResetReason.SCENE_LOADED);
@@ -3090,6 +3109,15 @@ public class Scene implements JsonSerializable, Refreshable {
   @PluginApi
   public Octree getWaterOctree() {
     return waterOctree;
+  }
+
+  public void freeOctrees() {
+    if(worldOctree != null) {
+      worldOctree.free();
+    }
+    if(waterOctree != null) {
+      waterOctree.free();
+    }
   }
 
   public EmitterSamplingStrategy getEmitterSamplingStrategy() {

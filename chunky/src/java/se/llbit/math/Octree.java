@@ -79,6 +79,7 @@ public class Octree {
       }
       return new Pair<>(node, level);
     }
+    default void free() {}
   }
 
   public interface NodeId {}
@@ -345,6 +346,14 @@ public class Octree {
    */
   public void store(DataOutputStream out) throws IOException {
     implementation.store(out);
+  }
+
+  /**
+   * Free any internal data
+   * Called when octree is to be discarded
+   */
+  public void free() {
+    implementation.free();
   }
 
   /**

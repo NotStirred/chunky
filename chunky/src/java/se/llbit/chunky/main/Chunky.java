@@ -296,8 +296,8 @@ public class Chunky {
     Log.setReceiver(HEADLESS_LOG_RECEIVER, Level.INFO, Level.WARNING, Level.ERROR);
     try {
       File file = options.getSceneDescriptionFile();
+      Scene scene = new Scene();
       try (FileInputStream in = new FileInputStream(file)) {
-        Scene scene = new Scene();
         scene.loadDescription(in); // Load description to get current SPP & canvas size.
         RenderContext context = new RenderContext(this);
         context.setSceneDirectory(file.getParentFile());
@@ -319,6 +319,8 @@ public class Chunky {
         scene.saveFrame(new File(options.imageOutputFile), taskTracker, context.numRenderThreads());
         System.out.println("Saved snapshot to " + options.imageOutputFile);
         return 0;
+      } finally {
+        scene.freeOctrees();
       }
     } catch (IOException e) {
       System.err.println("Failed to dump snapshot: " + e.getMessage());
