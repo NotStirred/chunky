@@ -25,6 +25,9 @@ public class GenericChunkData implements ChunkData {
   private final Collection<CompoundTag> tileEntities;
   private final Collection<CompoundTag> entities;
 
+  private volatile int cachedSectionY = Integer.MIN_VALUE;
+  private volatile SectionData cachedSectionData = null;
+
   public GenericChunkData() {
     sections = new Int2ObjectOpenHashMap<>();
     biomes = new byte[X_MAX * Z_MAX];
@@ -41,7 +44,15 @@ public class GenericChunkData implements ChunkData {
   }
 
   @Override public int getBlockAt(int x, int y, int z) {
-    SectionData sectionData = sections.get(y >> 4);
+    SectionData sectionData;
+    if(y == cachedSectionY) {
+      sectionData = cachedSectionData;
+    } else {
+      sectionData = sections.get(y >> 4);
+      cachedSectionY = y;
+      cachedSectionData = sectionData;
+    }
+
     if (sectionData == null)
       return 0;
     return sectionData.blocks[chunkIndex(x & (X_MAX - 1), y & (SECTION_Y_MAX - 1), z & (Z_MAX - 1))];
