@@ -37,11 +37,6 @@ public interface SceneManager {
   void loadScene(String sceneName) throws IOException, InterruptedException;
 
   /**
-   * Free scene internal memory
-   */
-  void freeScene();
-
-  /**
    * Load chunks and reset camera and scene.
    * The scene name should be set before the call to loadFreshChunks().
    */

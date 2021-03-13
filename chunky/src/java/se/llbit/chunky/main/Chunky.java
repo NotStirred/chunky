@@ -196,7 +196,6 @@ public class Chunky {
       e.printStackTrace();
       return 1;
     } finally {
-      sceneManager.freeScene();
       renderer.shutdown();
     }
   }
@@ -235,6 +234,8 @@ public class Chunky {
       } catch (Throwable t) {
         Log.error("Unchecked exception caused Chunky to close.", t);
         exitCode = 2;
+      } finally {
+        chunky.free();
       }
       if (exitCode != 0) {
         System.exit(exitCode);
@@ -374,6 +375,11 @@ public class Chunky {
       }
     }
     return renderController;
+  }
+
+  public void free() {
+    getSceneManager().getScene().freeOctrees();
+//    renderController.getRenderer().free(); //not needed as SceneManager#scene holds the same octrees
   }
 
   @PluginApi

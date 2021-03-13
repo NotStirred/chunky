@@ -92,6 +92,8 @@ public interface Renderer {
 
   void withSampleBufferProtected(SampleBufferConsumer consumer);
 
+  void free();
+
   /**
    * Shut down the renderer.
    *

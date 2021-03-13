@@ -54,6 +54,7 @@ public class ChunkyFx extends Application {
       controller.setApplication(this);
       stage.getIcons().add(new Image(getClass().getResourceAsStream("/chunky-icon.png")));
       stage.setOnCloseRequest(event -> {
+        chunkyInstance.free();
         Platform.exit();
         System.exit(0);
       });

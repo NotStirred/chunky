@@ -128,10 +128,6 @@ public class AsynchronousSceneManager extends Thread implements SceneManager {
     }
   }
 
-  @Override public void freeScene() {
-    sceneManager.freeScene();
-  }
-
   /**
    * Load chunks and reset camera.
    */

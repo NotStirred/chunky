@@ -441,6 +441,10 @@ public class RenderManager extends AbstractRenderManager implements Renderer {
     }
   }
 
+  @Override public void free() {
+    bufferedScene.freeOctrees();
+  }
+
   /**
    * Sends scene status text to the render preview tooltip.
    */
@@ -451,7 +455,6 @@ public class RenderManager extends AbstractRenderManager implements Renderer {
   }
 
   @Override public void shutdown() {
-    bufferedScene.freeOctrees();
     interrupt();
   }
 }
