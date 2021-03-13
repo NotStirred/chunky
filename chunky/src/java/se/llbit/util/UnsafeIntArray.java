@@ -64,7 +64,7 @@ public class UnsafeIntArray {
   }
 
   public void finalize() {
-//    finalizeFree();
+    finalizeFree();
   }
 
   public void finalizeFree() {
