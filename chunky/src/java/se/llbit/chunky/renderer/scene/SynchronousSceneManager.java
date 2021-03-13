@@ -157,6 +157,10 @@ public class SynchronousSceneManager implements SceneProvider, SceneManager {
     onSceneLoaded.run();
   }
 
+  @Override public void freeScene() {
+    scene.freeOctrees();
+  }
+
   @Override public void loadFreshChunks(World world, Collection<ChunkPosition> chunksToLoad) {
     synchronized (scene) {
       scene.clear();

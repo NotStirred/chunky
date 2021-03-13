@@ -421,16 +421,21 @@ public class Scene implements JsonSerializable, Refreshable {
       worldPath = other.worldPath;
       worldDimension = other.worldDimension;
 
+      if(worldOctree == other.worldOctree) {
+        int i = 0;
+      } else {
+        int i = 0;
+      }
       // The octree reference is overwritten to save time.
       // When the other scene is changed it must create a new octree.
       palette = other.palette;
-      if(worldOctree != null) {
-        worldOctree.free();
-      }
+//      if(worldOctree != null && worldOctree != other.worldOctree) {
+//        worldOctree.free();
+//      }
       worldOctree = other.worldOctree;
-      if(waterOctree != null) {
-        waterOctree.free();
-      }
+//      if(waterOctree != null && waterOctree != other.waterOctree) {
+//        waterOctree.free();
+//      }
       waterOctree = other.waterOctree;
       entities = other.entities;
       actors = new LinkedList<>(other.actors); // Create a copy so that entity changes can be reset.

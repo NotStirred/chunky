@@ -451,6 +451,7 @@ public class RenderManager extends AbstractRenderManager implements Renderer {
   }
 
   @Override public void shutdown() {
+    bufferedScene.freeOctrees();
     interrupt();
   }
 }

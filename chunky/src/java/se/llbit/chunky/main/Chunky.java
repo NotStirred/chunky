@@ -196,6 +196,7 @@ public class Chunky {
       e.printStackTrace();
       return 1;
     } finally {
+      sceneManager.freeScene();
       renderer.shutdown();
     }
   }
