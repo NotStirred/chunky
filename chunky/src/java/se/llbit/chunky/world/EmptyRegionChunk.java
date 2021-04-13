@@ -84,8 +84,8 @@ public class EmptyRegionChunk extends Chunk {
     // do nothing
   }
 
-  @Override public synchronized void loadChunk(ChunkData chunkData) {
-    // do nothing
+  @Override public synchronized boolean loadChunk(ChunkData chunkData) {
+    return false;
   }
 
   @Override public String toString() {

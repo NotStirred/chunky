@@ -84,8 +84,8 @@ public class EmptyChunk extends Chunk {
     // Do nothing.
   }
 
-  @Override public synchronized void loadChunk(ChunkData chunkData) {
-    // Do nothing.
+  @Override public synchronized boolean loadChunk(ChunkData chunkData) {
+    return false;
   }
 
   @Override public String toString() {
