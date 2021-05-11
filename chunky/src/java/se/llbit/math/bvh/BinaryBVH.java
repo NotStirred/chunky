@@ -22,8 +22,13 @@ import it.unimi.dsi.fastutil.ints.IntStack;
 import org.apache.commons.math3.util.FastMath;
 import se.llbit.math.AABB;
 import se.llbit.math.Ray;
+import se.llbit.math.Vector3;
 import se.llbit.math.primitive.Primitive;
+import sun.nio.ch.DirectBuffer;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Comparator;
 
@@ -38,7 +43,7 @@ public abstract class BinaryBVH implements BVH {
     public static final int SPLIT_LIMIT = 4;
 
     /** Note: This is public for some plugins. Stability is not guaranteed. */
-    public int[] packed;
+    public IntBuffer packed;
     public int depth;
     public Primitive[][] packedPrimitives;
 
@@ -134,7 +139,13 @@ public abstract class BinaryBVH implements BVH {
         IntArrayList data = new IntArrayList(root.size());
         ArrayList<Primitive[]> packedPrimitives = new ArrayList<>(data.size() / SPLIT_LIMIT);
         this.depth = packNode(root, data, packedPrimitives);
-        this.packed = data.toIntArray();
+
+        int[] packedArr = data.toIntArray();
+        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(packedArr.length * Integer.BYTES);
+        byteBuffer.order(ByteOrder.LITTLE_ENDIAN);
+        packed = byteBuffer.asIntBuffer();
+        packed.put(packedArr);
+
         this.packedPrimitives = packedPrimitives.toArray(new Primitive[0][]);
     }
 
@@ -180,6 +191,18 @@ public abstract class BinaryBVH implements BVH {
         data.add(Float.floatToIntBits((float) box.zmax));
     }
 
+    static {
+        System.loadLibrary("chunky");
+    }
+
+    public boolean intersectPrimitives(Ray ray, int primIndex) {
+        boolean hit = false;
+        for (Primitive primitive : packedPrimitives[primIndex]) {
+            hit = primitive.intersect(ray) || hit;
+        }
+        return hit;
+    }
+
     /**
      * Find closest intersection between the ray and any object in the BVH. This uses a recursion-less algorithm
      * based on the compact BVH traversal algorithm presented in:
@@ -189,63 +212,18 @@ public abstract class BinaryBVH implements BVH {
      */
     @Override
     public boolean closestIntersection(Ray ray) {
-        boolean hit = false;
-        int currentNode = 0;
-        IntStack nodesToVisit = new IntArrayList(depth/2);
 
-        double rx = 1 / ray.d.x;
-        double ry = 1 / ray.d.y;
-        double rz = 1 / ray.d.z;
-
-        while (true) {
-            if (packed[currentNode] <= 0) {
-                // Is leaf
-                int primIndex = -packed[currentNode];
-                for (Primitive primitive : packedPrimitives[primIndex]) {
-                    hit = primitive.intersect(ray) | hit;
-                }
-
-                if (nodesToVisit.isEmpty()) break;
-                currentNode = nodesToVisit.popInt();
-            } else {
-                // Is branch, find closest node
-                int offset = currentNode+7;
-                double t1 = quickAabbIntersect(ray, Float.intBitsToFloat(packed[offset+1]), Float.intBitsToFloat(packed[offset+2]),
-                        Float.intBitsToFloat(packed[offset+3]), Float.intBitsToFloat(packed[offset+4]),
-                        Float.intBitsToFloat(packed[offset+5]), Float.intBitsToFloat(packed[offset+6]),
-                        rx, ry, rz);
-                offset = packed[currentNode];
-                double t2 = quickAabbIntersect(ray, Float.intBitsToFloat(packed[offset+1]), Float.intBitsToFloat(packed[offset+2]),
-                        Float.intBitsToFloat(packed[offset+3]), Float.intBitsToFloat(packed[offset+4]),
-                        Float.intBitsToFloat(packed[offset+5]), Float.intBitsToFloat(packed[offset+6]),
-                        rx, ry, rz);
-
-                if (t1 > ray.t | t1 == -1) {
-                    if (t2 > ray.t | t2 == -1) {
-                        if (nodesToVisit.isEmpty()) break;
-                        currentNode = nodesToVisit.popInt();
-                    } else {
-                        currentNode = packed[currentNode];
-                    }
-                } else if (t2 > ray.t | t2 == -1) {
-                    currentNode += 7;
-                } else if (t1 < t2) {
-                    nodesToVisit.push(packed[currentNode]);
-                    currentNode += 7;
-                } else {
-                    nodesToVisit.push(currentNode + 7);
-                    currentNode = packed[currentNode];
-                }
-            }
-        }
-
-        return hit;
+        Vector3 d = ray.d;
+        Vector3 o = ray.o;
+        return closestIntersection(ray, ray.t, d.x, d.y, d.z, o.x, o.y, o.z, depth, ((DirectBuffer) packed).address());
     }
 
-    /**
-     * Perform a fast AABB intersection with cached reciprocal direction. This is a branchless approach based on:
-     * https://gamedev.stackexchange.com/a/146362
-     */
+    private native boolean closestIntersection(Ray ray, double ray_t, double ray_d_x, double ray_d_y, double ray_d_z, double ray_o_x, double ray_o_y, double ray_o_z, int depth, long pPacked);
+
+        /**
+         * Perform a fast AABB intersection with cached reciprocal direction. This is a branchless approach based on:
+         * https://gamedev.stackexchange.com/a/146362
+         */
     public double quickAabbIntersect(Ray ray, float xmin, float xmax, float ymin, float ymax, float zmin, float zmax, double rx, double ry, double rz) {
         if (ray.o.x >= xmin && ray.o.x <= xmax && ray.o.y >= ymin && ray.o.y <= ymax && ray.o.z >= zmin && ray.o.z <= zmax) {
             return 0;

@@ -39,6 +39,38 @@ jar {
   }
 }
 
+task compileNativesCMake(type: Exec) {
+  workingDir "$projectDir/../cbuild"
+  workingDir.mkdirs()
+
+  commandLine = ["cmake", ".."]
+  standardOutput = new ByteArrayOutputStream()
+
+  doLast {
+    println "$standardOutput"
+  }
+}
+task compileNatives(type: Exec) {
+  workingDir "$projectDir/../cbuild"
+  commandLine = "make"
+  standardOutput = new ByteArrayOutputStream()
+
+  doLast {
+    println "$standardOutput"
+  }
+}
+compileNatives.dependsOn(compileNativesCMake)
+compileJava.dependsOn(compileNatives)
+
+task cleanNatives(type: Exec) {
+  workingDir "$projectDir/../"
+  workingDir.mkdirs()
+
+  commandLine = ["rm", "-rf", "cbuild"]
+}
+
+clean.dependsOn(cleanNatives)
+
 sourceSets {
   main {
     java {

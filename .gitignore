@@ -16,6 +16,11 @@
 
 # Build tool files.
 /.gradle/
+*.class
+libchunky.so
+chunky.dll
+/cbuild
+/cmake-build-debug
 
 # Release artifacts.
 /lpcache/
