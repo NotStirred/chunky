@@ -16,6 +16,8 @@ extern "C" {
  */
 JNIEXPORT jboolean JNICALL Java_se_llbit_math_bvh_BinaryBVH_closestIntersection
   (JNIEnv *, jobject, jobject, jdouble, jdouble, jdouble, jdouble, jdouble, jdouble, jdouble, jint, jlong);
+JNIEXPORT void JNICALL Java_se_llbit_math_bvh_BinaryBVH_init
+  (JNIEnv *, jclass);
 
 #ifdef __cplusplus
 }

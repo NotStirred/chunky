@@ -193,6 +193,7 @@ public abstract class BinaryBVH implements BVH {
 
     static {
         System.loadLibrary("chunky");
+        init();
     }
 
     public boolean intersectPrimitives(Ray ray, int primIndex) {
@@ -217,6 +218,8 @@ public abstract class BinaryBVH implements BVH {
         Vector3 o = ray.o;
         return closestIntersection(ray, ray.t, d.x, d.y, d.z, o.x, o.y, o.z, depth, ((DirectBuffer) packed).address());
     }
+
+    private native static void init();
 
     private native boolean closestIntersection(Ray ray, double ray_t, double ray_d_x, double ray_d_y, double ray_d_z, double ray_o_x, double ray_o_y, double ray_o_z, int depth, long pPacked);
 

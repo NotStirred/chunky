@@ -8,10 +8,18 @@ const double OFFSET = 0.000001;
 
 double quickAabbIntersect(double, double, double, float, float, float, float, float, float, double, double, double);
 
+jmethodID intersectPrimitives;
+JNIEXPORT void JNICALL Java_se_llbit_math_bvh_BinaryBVH_init
+        (JNIEnv* env, jclass clazz) {
+    intersectPrimitives = env->GetMethodID(clazz, "intersectPrimitives", "(Lse/llbit/math/Ray;I)Z");
+    jclass rayClass = env->FindClass("se/llbit/math/Ray");
+    jfieldID offset_fieldID = env->GetStaticFieldID(rayClass, "OFFSET", "D");
+    if(OFFSET != env->GetStaticDoubleField(rayClass, offset_fieldID)) {
+        chunky::jni::throwException(env, "Ray#OFFSET != native OFFSET");
+    }
+}
 JNIEXPORT jboolean JNICALL Java_se_llbit_math_bvh_BinaryBVH_closestIntersection
         (JNIEnv* env, jobject thisObject, jobject ray, jdouble ray_t, jdouble ray_d_x, jdouble ray_d_y, jdouble ray_d_z, jdouble ray_o_x, jdouble ray_o_y, jdouble ray_o_z, jint depth, jlong pPacked) {
-    jclass thisClass = env->GetObjectClass(thisObject);
-
     auto* packed = (int32_t*)pPacked;
 
     bool hit = false;
@@ -21,8 +29,6 @@ JNIEXPORT jboolean JNICALL Java_se_llbit_math_bvh_BinaryBVH_closestIntersection
     const double rx = 1 / ray_d_x;
     const double ry = 1 / ray_d_y;
     const double rz = 1 / ray_d_z;
-
-    jmethodID intersectPrimitives = env->GetMethodID(thisClass, "intersectPrimitives", "(Lse/llbit/math/Ray;I)Z");
 
     while (true) {
         if (packed[currentNode] <= 0) {
