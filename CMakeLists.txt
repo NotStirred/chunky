@@ -15,3 +15,6 @@ add_library(chunky SHARED
         chunky/src/java/se/llbit/native/se_llbit_math_bvh_BinaryBVH.cpp chunky/src/java/se/llbit/native/se_llbit_math_bvh_BinaryBVH.h
         chunky/src/java/se/llbit/native/util/util.h
 )
+
+target_compile_options(chunky PUBLIC "$<$<CONFIG:DEBUG>:-O3>")
+target_compile_options(chunky PUBLIC "$<$<CONFIG:RELEASE>:-O3>")

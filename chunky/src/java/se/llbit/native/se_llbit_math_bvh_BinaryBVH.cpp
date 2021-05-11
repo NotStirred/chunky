@@ -92,5 +92,5 @@ double quickAabbIntersect(double ray_o_x, double ray_o_y, double ray_o_z, float 
     double tmin = chunky::util::max(chunky::util::max(chunky::util::min(tx1, tx2), chunky::util::min(ty1, ty2)), chunky::util::min(tz1, tz2));
     double tmax = chunky::util::min(chunky::util::min(chunky::util::max(tx1, tx2), chunky::util::max(ty1, ty2)), chunky::util::max(tz1, tz2));
 
-    return tmin <= tmax + OFFSET && tmin >= 0 ? tmin : -1;
+    return (tmin <= tmax + OFFSET & tmin >= 0) ? tmin : -1;
 }
