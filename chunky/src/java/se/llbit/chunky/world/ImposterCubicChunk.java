@@ -90,14 +90,15 @@ public class ImposterCubicChunk extends Chunk {
 //        extractBiomeData(cubeData.get(LEVEL_BIOMES), chunkData);
         if (version.equals("1.13") || version.equals("1.12")) {
           loadBlockDataCubic(yPos, cubeData, chunkData, palette, yMin, yMax);
-          surface = new SurfaceLayer(world.currentDimension(), chunkData, palette, yMin, yMax);
-          queueTopography();
         }
       }
     }
 
     int[] heightmapData = extractHeightmapDataCubic(null, chunkData);
     updateHeightmap(heightmap, position, chunkData, heightmapData, palette, yMax);
+
+    surface = new SurfaceLayer(world.currentDimension(), chunkData, palette, heightmapData, yMin, yMax);
+    queueTopography();
   }
 
   private int[] extractHeightmapDataCubic(Map<String, Tag> cubeData, ChunkData chunkData) {
